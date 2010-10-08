@@ -1,0 +1,28 @@
+Name:                haskell-qrencode
+Version:             0.1
+
+Synopsis:            qrencode bindings
+License:             BSD3
+License-file:        LICENSE
+Author:              James Sanders
+Maintainer:          james.sanders@thisismedium.com
+Category:            Data
+Build-type:          Simple
+Cabal-version:       >=1.2
+
+
+Library
+  hs-source-dirs: src
+  -- Modules exported by the library.
+  Exposed-modules:     Data.QRCode
+  
+  -- Packages needed in order to build this package.
+  Build-depends: base, bytestring >= 0.9.1.7
+  
+  -- Modules not exported by this package.
+  -- Other-modules:       
+  
+  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
+  Build-tools:         hsc2hs
+  ghc-options: -O2
+  extra-libraries: qrencode
