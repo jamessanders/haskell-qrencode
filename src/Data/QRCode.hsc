@@ -74,7 +74,7 @@ encodeString str level mode = do
     s <- newCAString str
     let l = convertEncodeLevel level
     let m = convertEncodeMode mode
-    c_qr <- join $ fmap peek $ c_encodeString s 0 l m 0
+    c_qr <- join $ fmap peek $ c_encodeString s 0 l m 1
     let version = fromIntegral (c_version c_qr)
     let width   = fromIntegral (c_width   c_qr)
     str <- fmap (regroup width . walkS) $ peekCAString (c_data c_qr)
