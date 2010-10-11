@@ -17,6 +17,7 @@ module Data.QRCode (encodeByteString,
 
 import Control.Monad
 import Data.ByteString (ByteString, unpack, useAsCString, packCString)
+import qualified Data.ByteString as BS
 import Data.Maybe
 import Foreign
 import Foreign.C.String
@@ -94,7 +95,8 @@ encodeByteString :: ByteString    -- ^ String to encode
                  -> QREncodeMode  -- ^ Encode Mode
                  -> Bool          -- ^ Case-sensative
                  -> IO QRcode     
-encodeByteString str version level mode casesensitive = 
+encodeByteString str version level mode casesensitive = do
+    when (BS.null str) $ error "empty bytestring provided" 
     useAsCString str $ \s-> encoder s version level mode casesensitive
 
 -- | create a QR code from a String
@@ -104,7 +106,8 @@ encodeString :: String        -- ^ String to encode
              -> QREncodeMode  -- ^ Encode Mode
              -> Bool          -- ^ Case-sensative
              -> IO QRcode
-encodeString str version  level mode casesensitive = 
+encodeString str version  level mode casesensitive = do
+    when (null str) $ error "empty string provided" 
     newCAString str >>= \s-> encoder s version level mode casesensitive
     
 encoder :: CString -> Maybe Int -> QREncodeLevel -> QREncodeMode -> Bool -> IO QRcode
