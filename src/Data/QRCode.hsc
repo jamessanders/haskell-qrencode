@@ -20,6 +20,7 @@ import Data.ByteString (ByteString, unpack, useAsCString, packCString)
 import qualified Data.ByteString as BS
 import Data.Maybe
 import Foreign
+import Foreign.C.Error
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.Storable
@@ -80,13 +81,17 @@ instance Storable QRcodeStruct where
       #{poke QRcode, data} ptr data'
 
 
-foreign import ccall unsafe "QRcode_encodeString" 
+foreign import ccall safe "QRcode_encodeString"
     c_encodeString :: CString -- string
                    -> CInt    -- version
                    -> CInt    -- level
                    -> CInt    -- hint
                    -> CInt    -- casesensitive
                    -> IO (Ptr QRcodeStruct)
+
+foreign import ccall unsafe "QRcode_free"
+    c_free :: Ptr QRcodeStruct
+           -> IO ()
 
 -- | create a QR code from a ByteString
 encodeByteString :: ByteString    -- ^ String to encode
@@ -117,10 +122,11 @@ encoder cstr ver level mode casesensitive = do
   c_qrptr <- throwErrnoIfNull "haskell-qrencode/QRcode_encodeString" $
              c_encodeString cstr (fromIntegral $ fromMaybe 0 ver) l m (b2i casesensitive)
   c_qr <- peek c_qrptr
-  let version = fromIntegral (c_version c_qr)                           
-  let width   = fromIntegral (c_width   c_qr)                           
-  str <- packCString (c_data c_qr) 
-  return (QRcode version width str)                                     
+  let version = fromIntegral (c_version c_qr)
+  let width   = fromIntegral (c_width   c_qr)
+  str <- packCString (c_data c_qr)
+  c_free c_qrptr
+  return (QRcode version width str)
   where
     b2i True  = 1
     b2i False = 0
