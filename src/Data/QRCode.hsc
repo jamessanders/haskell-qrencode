@@ -114,7 +114,9 @@ encoder :: CString -> Maybe Int -> QREncodeLevel -> QREncodeMode -> Bool -> IO Q
 encoder cstr ver level mode casesensitive = do
   let l = convertQREncodeLevel level
   let m = convertQREncodeMode mode
-  c_qr <- join $ fmap peek $ c_encodeString cstr (fromIntegral $ fromMaybe 0 ver) l m (b2i casesensitive) 
+  c_qrptr <- throwErrnoIfNull "haskell-qrencode/QRcode_encodeString" $
+             c_encodeString cstr (fromIntegral $ fromMaybe 0 ver) l m (b2i casesensitive)
+  c_qr <- peek c_qrptr
   let version = fromIntegral (c_version c_qr)                           
   let width   = fromIntegral (c_width   c_qr)                           
   str <- packCString (c_data c_qr) 
