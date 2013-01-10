@@ -2,17 +2,17 @@
 
 -- | Haskell bindings for libqrencode. <http://fukuchi.org/works/qrencode/index.en.html>
 --
---   Libqrencode is a C library for encoding data in a QR Code symbol, a kind of 2D symbology 
---   that can be scanned by handy terminals such as a mobile phone with CCD. The capacity of 
+--   Libqrencode is a C library for encoding data in a QR Code symbol, a kind of 2D symbology
+--   that can be scanned by handy terminals such as a mobile phone with CCD. The capacity of
 --   QR Code is up to 7000 digits or 4000 characters, and is highly robust.
 
-module Data.QRCode (encodeByteString, 
+module Data.QRCode (encodeByteString,
                     encodeString,
                     getQRCodeVersion,
                     getQRCodeWidth,
                     getQRCodeString,
                     toMatrix,
-                    QREncodeLevel (..), 
+                    QREncodeLevel (..),
                     QREncodeMode (..)) where
 
 import Control.Monad
@@ -26,9 +26,9 @@ import Foreign.Storable
 
 #include <qrencode.h>
 
-data QREncodeLevel = QR_ECLEVEL_L 
-                   | QR_ECLEVEL_M 
-                   | QR_ECLEVEL_Q 
+data QREncodeLevel = QR_ECLEVEL_L
+                   | QR_ECLEVEL_M
+                   | QR_ECLEVEL_Q
                    | QR_ECLEVEL_H
 
 data QREncodeMode  = QR_MODE_NUM        -- ^ Numeric mode
@@ -43,12 +43,12 @@ convertQREncodeLevel QR_ECLEVEL_Q = #const QR_ECLEVEL_Q
 convertQREncodeLevel QR_ECLEVEL_H = #const QR_ECLEVEL_H
 
 convertQREncodeMode :: QREncodeMode -> CInt
-convertQREncodeMode QR_MODE_NUM       = #const QR_MODE_NUM   
-convertQREncodeMode QR_MODE_AN        = #const QR_MODE_AN    
-convertQREncodeMode QR_MODE_EIGHT     = #const QR_MODE_8     
-convertQREncodeMode QR_MODE_KANJI     = #const QR_MODE_KANJI 
+convertQREncodeMode QR_MODE_NUM       = #const QR_MODE_NUM
+convertQREncodeMode QR_MODE_AN        = #const QR_MODE_AN
+convertQREncodeMode QR_MODE_EIGHT     = #const QR_MODE_8
+convertQREncodeMode QR_MODE_KANJI     = #const QR_MODE_KANJI
 
-data QRcode = QRcode { 
+data QRcode = QRcode {
       getQRCodeVersion :: Int,
       getQRCodeWidth   :: Int,
       getQRCodeString  :: ByteString
@@ -94,9 +94,9 @@ encodeByteString :: ByteString    -- ^ String to encode
                  -> QREncodeLevel -- ^ Encode Level
                  -> QREncodeMode  -- ^ Encode Mode
                  -> Bool          -- ^ Case-sensative
-                 -> IO QRcode     
+                 -> IO QRcode
 encodeByteString str version level mode casesensitive = do
-    when (BS.null str) $ error "empty bytestring provided" 
+    when (BS.null str) $ error "empty bytestring provided"
     useAsCString str $ \s-> encoder s version level mode casesensitive
 
 -- | create a QR code from a String
@@ -107,9 +107,9 @@ encodeString :: String        -- ^ String to encode
              -> Bool          -- ^ Case-sensative
              -> IO QRcode
 encodeString str version  level mode casesensitive = do
-    when (null str) $ error "empty string provided" 
+    when (null str) $ error "empty string provided"
     newCAString str >>= \s-> encoder s version level mode casesensitive
-    
+
 encoder :: CString -> Maybe Int -> QREncodeLevel -> QREncodeMode -> Bool -> IO QRcode
 encoder cstr ver level mode casesensitive = do
   let l = convertQREncodeLevel level
@@ -120,15 +120,15 @@ encoder cstr ver level mode casesensitive = do
   str <- packCString (c_data c_qr) 
   return (QRcode version width str)                                     
   where
-    b2i True  = 1                                   
-    b2i False = 0                                   
+    b2i True  = 1
+    b2i False = 0
 
 -- | Convert a QRcode to a matrix of ones and zeros (1 = On, 0 = Off)
 toMatrix :: QRcode -> [[Word8]]
-toMatrix (QRcode _ width str) = 
+toMatrix (QRcode _ width str) =
     regroup . map tobin . unpack $ str
     where
-      tobin c = c .&. 1                               
-      regroup [] = []                               
-      regroup x = take width x : regroup (drop width x)   
+      tobin c = c .&. 1
+      regroup [] = []
+      regroup x = take width x : regroup (drop width x)
 
