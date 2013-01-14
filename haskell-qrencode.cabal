@@ -13,8 +13,12 @@ Author:              James Sanders
 Maintainer:          james.sanders@thisismedium.com
 Category:            Data
 Build-type:          Simple
-Cabal-version:       >=1.2
+Cabal-version:       >=1.6
+Homepage:            https://github.com/jamessanders/haskell-qrencode
 
+Source-repository head
+  type:     git
+  location: git://github.com/jamessanders/haskell-qrencode.git
 
 Library
   hs-source-dirs: src
