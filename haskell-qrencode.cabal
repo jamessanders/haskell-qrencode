@@ -9,8 +9,8 @@ Description:         Haskell bindings for libqrencode.
 
 License:             BSD3
 License-file:        LICENSE
-Author:              James Sanders
-Maintainer:          james.sanders@thisismedium.com
+Author:              James Sanders, Felipe Lessa
+Maintainer:          jimmyjazz14@gmail.com
 Category:            Data
 Build-type:          Simple
 Cabal-version:       >=1.6
