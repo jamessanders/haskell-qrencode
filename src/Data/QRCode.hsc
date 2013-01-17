@@ -138,5 +138,6 @@ toMatrix (QRcode _ width str) =
     where
       tobin c = c .&. 1
       regroup [] = []
-      regroup x = take width x : regroup (drop width x)
+      regroup xs = let ~(this, rest) = splitAt width xs
+                   in this : regroup rest
 
