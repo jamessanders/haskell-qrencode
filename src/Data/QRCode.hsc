@@ -16,7 +16,7 @@ module Data.QRCode (encodeByteString,
                     QREncodeMode (..)) where
 
 import Control.Monad
-import Data.ByteString (ByteString, unpack, useAsCString, packCString)
+import Data.ByteString (ByteString, unpack, useAsCString, packCStringLen)
 import qualified Data.ByteString as BS
 import Data.Maybe
 import Foreign
@@ -124,7 +124,7 @@ encoder cstr ver level mode casesensitive = do
   c_qr <- peek c_qrptr
   let version = fromIntegral (c_version c_qr)
   let width   = fromIntegral (c_width   c_qr)
-  str <- packCString (c_data c_qr)
+  str <- packCStringLen (c_data c_qr, width * width)
   c_free c_qrptr
   return (QRcode version width str)
   where
