@@ -113,7 +113,7 @@ encodeString :: String        -- ^ String to encode
              -> IO QRcode
 encodeString str version  level mode casesensitive = do
     when (null str) $ error "empty string provided"
-    newCAString str >>= \s-> encoder s version level mode casesensitive
+    withCAString str $ \s-> encoder s version level mode casesensitive
 
 encoder :: CString -> Maybe Int -> QREncodeLevel -> QREncodeMode -> Bool -> IO QRcode
 encoder cstr ver level mode casesensitive = do
